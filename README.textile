@@ -1,0 +1,9 @@
+h1. rig
+
+rig is a rakefile that I use in my day to day work as a .net developer.  Strange I know, but the rake framework is actually far superior to any .net tool i've found for automating building, cleanup and simple deployment needs.
+
+at this point it's very very simple, there are 2 things you can do with it:
+
+h3. rake build
+
+h3. rake package:deploy['ProjectName']
