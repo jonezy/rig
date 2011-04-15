@@ -7,6 +7,8 @@ PATH_TO_MSBUILD = "C:\\Windows\\Microsoft.NET\\Framework\\v3.5\\msbuild.exe"
 CLEAN.exclude("**/core")
 CLEAN.include("*.cache", "*.xml", "*.suo", "**/obj", "**/bin", "../Deploy")
 
+task :default => :build
+
 # builds all the .sln files in the directory
 task :build do 
   desc "builds all of the .sln files in the current directory"
@@ -25,6 +27,8 @@ namespace "deploy" do
       sh "xcopy .\\#{args.project_name} ..\\Deploy\\#{args.project_name}\\ /S /C /F /Y /exclude:e.txt"
       begin
         sh "xcopy .\\#{args.project_name}\\Web.config.prod ..\\Deploy\\#{args.project_name}\\Web.config /S /C /F /Y" 
+        File.rename("../Deploy/#{args.project_name}/Web.config.prod", "../Deploy/#{args.project_name}/Web.config")
+        File.delete("../Deploy/#{args.project_name}/Web.config.prod")
       rescue
       end
     rescue Exception=>e
