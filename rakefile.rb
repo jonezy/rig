@@ -2,6 +2,7 @@ require 'rake/clean'
 
 SELF_PATH = File.dirname(__FILE__)
 PATH_TO_MSBUILD = "C:\\Windows\\Microsoft.NET\\Framework\\v3.5\\msbuild.exe"
+TARGET_ENV = "staging"
 
 # list of files and directories to clean, change to suit your liking
 CLEAN.exclude("**/core")
@@ -19,17 +20,26 @@ end
 
 namespace "deploy" do
   desc "Preps the project for deployment"
-  task :package, :project_name do |t, args|
+  task :project, :project_name, :destination do |t, args|
     begin
+      TARGET_ENV = args.destination if args.destination.to_s != ""
+        
+      config_file = "Web.config.#{TARGET_ENV}"
+
       Rake::Task["clean"].invoke # clean everything up
       Rake::Task["build"].invoke # build the project
-      Dir.mkdir("../Deploy") # make sure the deploy directory is present
-      sh "xcopy .\\#{args.project_name} ..\\Deploy\\#{args.project_name}\\ /S /C /F /Y /exclude:e.txt"
+
+      if !File.exists?('../Deploy') then
+        Dir.mkdir("../Deploy") # make sure the deploy directory is present
+      end
+
+      # copies the main project files
+      sh "xcopy .\\#{args.project_name} ..\\Deploy\\#{args.project_name}\\ /S /C /Y /Q /exclude:e.txt"
       begin
-        sh "xcopy .\\#{args.project_name}\\Web.config.prod ..\\Deploy\\#{args.project_name}\\Web.config /S /C /F /Y" 
-        File.rename("../Deploy/#{args.project_name}/Web.config.prod", "../Deploy/#{args.project_name}/Web.config")
-        File.delete("../Deploy/#{args.project_name}/Web.config.prod")
-      rescue
+        #copies the projects deployment specific config file
+        sh "xcopy .\\#{args.project_name}\\#{config_file} ..\\Deploy\\#{args.project_name}\\Web.config /S /C /Y /Q" 
+      rescue Exception=>e
+        puts e
       end
     rescue Exception=>e
       puts e
