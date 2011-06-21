@@ -29,9 +29,8 @@ namespace "deploy" do
       Rake::Task["clean"].invoke # clean everything up
       Rake::Task["build"].invoke # build the project
 
-      if !File.exists?('../Deploy') then
-        Dir.mkdir("../Deploy") # make sure the deploy directory is present
-      end
+      # make sure the deploy directory is present
+      Dir.mkdir("../Deploy") if !File.exists?('../Deploy')
 
       # copies the main project files
       sh "xcopy .\\#{args.project_name} ..\\Deploy\\#{args.project_name}\\ /S /C /Y /Q /exclude:e.txt"
